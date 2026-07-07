@@ -1,129 +1,191 @@
 # KPBOT — Конструктор коммерческих предложений MediaPeace
 
-Telegram-бот для автоматической генерации PDF коммерческих предложений на базе готового шаблона. Таблица бюджета не перерисовывается — невыбранные строки маскируются прямо в оригинальном PDF через PyMuPDF.
+Telegram-бот для автоматической генерации PDF коммерческих предложений на базе готового шаблона.
 
-## Возможности
+## Архитектура деплоя
 
-- Мультивыбор услуг через inline-кнопки
-- Стандартные цены или кастомная стоимость
-- Автоматический пересчёт итогов (1 / 3 / 6 месяцев)
-- Вставка названия компании и срока действия КП
-- Удаление лишних страниц услуг из PDF
+| Среда | Режим | Entry point |
+|-------|-------|-------------|
+| Локально | `polling` | `main.py` |
+| Vercel (prod) | `webhook` | `api/index.py` → `/webhook` |
 
-## Стек
-
-- Python 3.11+
-- [aiogram 3](https://docs.aiogram.dev/)
-- [PyMuPDF (fitz)](https://pymupdf.readthedocs.io/)
-- [Vercel](https://vercel.com) — serverless webhook
-- [Upstash Redis](https://upstash.com) — хранение FSM-состояния на Vercel
+> **gunicorn / uvicorn не нужны.** Vercel Python Serverless использует `@vercel/python` и класс `handler` в `api/*.py`. ASGI/WSGI-серверы нужны только для VPS/Docker, не для serverless.
 
 ## Структура
 
 ```
-├── api/webhook.py          # Serverless endpoint для Vercel
-├── bot_setup.py            # Инициализация Bot + Dispatcher
-├── config.py               # Конфигурация через env
-├── document_generator.py   # Генерация PDF (маскирование строк)
-├── handlers.py             # FSM-логика бота
-├── main.py                 # Локальный запуск (polling)
-├── scripts/set_webhook.py  # Регистрация webhook в Telegram
-├── templates/
-│   └── commercial_proposal.pdf
-├── vercel.json
-└── requirements.txt
+├── api/
+│   ├── index.py          # Primary Vercel serverless handler
+│   └── webhook.py        # Legacy alias
+├── webhook_app.py        # Async aiogram 3 webhook logic
+├── bot_setup.py          # Bot + Dispatcher + Redis FSM
+├── main.py               # Local polling only
+├── vercel.json           # Routes, timeouts, region
+├── scripts/
+│   ├── vercel-setup.ps1  # vercel link + env pull
+│   ├── vercel-deploy.ps1 # vercel deploy --prod
+│   └── set_webhook.py    # Register Telegram webhook
+└── .github/workflows/
+    └── vercel-deploy.yml # Auto-deploy on push to main
 ```
 
-## Локальный запуск
+---
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env
-# Заполните BOT_TOKEN в .env
+## 1. vercel.json
 
-python main.py
+```json
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": null,
+  "installCommand": "pip install -r requirements.txt",
+  "rewrites": [
+    { "source": "/webhook", "destination": "/api/index" },
+    { "source": "/api/webhook", "destination": "/api/index" }
+  ],
+  "functions": {
+    "api/**/*.py": {
+      "maxDuration": 60,
+      "memory": 1024
+    }
+  },
+  "regions": ["fra1"]
+}
 ```
 
-## Деплой на GitHub
+- **`/webhook`** — основной URL для Telegram `setWebhook`
+- **`maxDuration: 60`** — до 60 сек на генерацию PDF (Pro plan; Hobby = 10 сек)
+- **`regions: fra1`** — Frankfurt, ближе к Telegram EU
 
-Репозиторий: [github.com/IgorMirkhanov/KPBOT](https://github.com/IgorMirkhanov/KPBOT)
+---
 
-```bash
-git init
-git add .
-git commit -m "Initial commit: Telegram KP bot"
-git branch -M main
-git remote add origin https://github.com/IgorMirkhanov/KPBOT.git
-git push -u origin main
+## 2. Переменные окружения (Vercel Dashboard)
+
+**Settings → Environment Variables → Production:**
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `BOT_TOKEN` | ✅ | Токен от @BotFather |
+| `WEBHOOK_SECRET` | ✅ | Случайная строка (1–256 символов) |
+| `REDIS_URL` | ✅ | Upstash Redis URL для FSM |
+| `WEBHOOK_URL` | ⚙️ CI only | `https://YOUR-APP.vercel.app/webhook` |
+
+### Безопасное добавление через CLI
+
+```powershell
+# Windows — интерактивно, значение не попадает в историю shell
+vercel env add BOT_TOKEN production
+vercel env add WEBHOOK_SECRET production
+vercel env add REDIS_URL production
+vercel env add WEBHOOK_URL production
 ```
 
-> **Важно:** файл `.env` с токеном не попадает в git (см. `.gitignore`).
+Или через Dashboard: **Settings → Environment Variables → Add** → выберите **Production**, **Preview**, **Development**.
 
-## Деплой на Vercel
+> Никогда не коммитьте `.env`, `.env.local` — они в `.gitignore`.
 
-Telegram-бот на Vercel работает через **webhook**, не polling.
+---
 
-### 1. Импорт проекта
+## 3. Первичная настройка Vercel CLI
 
-1. Зайдите на [vercel.com](https://vercel.com) → **Add New Project**
-2. Импортируйте репозиторий `IgorMirkhanov/KPBOT`
-3. Framework Preset: **Other**
-4. Root Directory: `/` (корень)
+```powershell
+npm install -g vercel
+cd "c:\Users\Igorm\Desktop\Бот Кп"
 
-### 2. Переменные окружения
-
-В **Settings → Environment Variables** добавьте:
-
-| Переменная       | Описание                                      |
-|------------------|-----------------------------------------------|
-| `BOT_TOKEN`      | Токен от @BotFather                           |
-| `WEBHOOK_SECRET` | Случайная строка (защита webhook)             |
-| `REDIS_URL`      | URL Redis (Upstash) — **обязательно** для FSM |
-
-> Без Redis многошаговый диалог (выбор услуг → компания → цена → срок) не сохранится между запросами на serverless.
-
-### 3. Деплой
-
-После деплоя URL будет вида: `https://kpbot-xxx.vercel.app`
-
-Проверка: откройте `https://kpbot-xxx.vercel.app/api/webhook` — должно показать `KPBOT webhook is running`.
-
-### 4. Регистрация webhook в Telegram
-
-```bash
-# Локально или в CI
-set BOT_TOKEN=your_token
-set WEBHOOK_URL=https://kpbot-xxx.vercel.app/api/webhook
-set WEBHOOK_SECRET=your_secret
-python scripts/set_webhook.py
+# One-time: link project + pull env
+.\scripts\vercel-setup.ps1
 ```
 
 Или вручную:
 
-```
-https://api.telegram.org/bot<TOKEN>/setWebhook?url=https://kpbot-xxx.vercel.app/api/webhook&secret_token=<WEBHOOK_SECRET>
+```powershell
+vercel link
+vercel env pull .env.local
 ```
 
-### 5. Upstash Redis (бесплатно)
+---
+
+## 4. Production deploy
+
+```powershell
+.\scripts\vercel-deploy.ps1
+```
+
+Или вручную:
+
+```powershell
+vercel env pull .env.local --yes
+vercel deploy --prod --yes
+```
+
+Проверка:
+
+```
+GET https://YOUR-APP.vercel.app/webhook
+→ "KPBOT webhook is running. POST Telegram updates here."
+```
+
+---
+
+## 5. Регистрация Telegram webhook
+
+```powershell
+$env:BOT_TOKEN = "your_token"
+$env:WEBHOOK_URL = "https://YOUR-APP.vercel.app/webhook"
+$env:WEBHOOK_SECRET = "your_secret"
+python scripts/set_webhook.py
+```
+
+---
+
+## 6. Continuous Deployment (GitHub Actions)
+
+При каждом `push` в `main` автоматически деплоится production.
+
+### GitHub Secrets (Settings → Secrets → Actions)
+
+| Secret | Где взять |
+|--------|-----------|
+| `VERCEL_TOKEN` | [vercel.com/account/tokens](https://vercel.com/account/tokens) |
+| `VERCEL_ORG_ID` | `.vercel/project.json` после `vercel link` |
+| `VERCEL_PROJECT_ID` | `.vercel/project.json` после `vercel link` |
+| `BOT_TOKEN` | @BotFather |
+| `WEBHOOK_SECRET` | ваш секрет |
+| `WEBHOOK_URL` | `https://YOUR-APP.vercel.app/webhook` |
+
+После `vercel link` посмотрите IDs:
+
+```powershell
+Get-Content .vercel\project.json
+```
+
+---
+
+## 7. Локальная разработка (polling)
+
+```powershell
+pip install -r requirements.txt
+copy .env.example .env
+# заполните BOT_TOKEN
+
+# Сначала удалите webhook:
+# https://api.telegram.org/bot<TOKEN>/deleteWebhook
+
+python main.py
+```
+
+---
+
+## 8. Upstash Redis (обязательно на Vercel)
 
 1. [upstash.com](https://upstash.com) → Create Database
-2. Скопируйте **Redis URL**
-3. Вставьте в `REDIS_URL` на Vercel
-4. Redeploy проект
+2. Copy **Redis URL** → `REDIS_URL` в Vercel
+3. Redeploy
 
-## Переключение polling ↔ webhook
+Без Redis FSM-состояние (выбор услуг → компания → цена → срок) теряется между serverless-вызовами.
 
-| Режим    | Где использовать | Команда / endpoint        |
-|----------|------------------|---------------------------|
-| Polling  | Локально         | `python main.py`          |
-| Webhook  | Vercel           | `api/webhook.py`          |
+---
 
-Перед локальным polling удалите webhook:
+## Репозиторий
 
-```
-https://api.telegram.org/bot<TOKEN>/deleteWebhook
-```
-
-## Лицензия
-
-Private / MediaPeace internal use.
+[github.com/IgorMirkhanov/KPBOT](https://github.com/IgorMirkhanov/KPBOT)

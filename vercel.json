@@ -1,9 +1,23 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "framework": null,
+  "installCommand": "pip install -r requirements.txt",
+  "rewrites": [
+    {
+      "source": "/webhook",
+      "destination": "/api/index"
+    },
+    {
+      "source": "/api/webhook",
+      "destination": "/api/index"
+    }
+  ],
   "functions": {
     "api/**/*.py": {
       "maxDuration": 60,
       "memory": 1024
     }
-  }
+  },
+  "regions": ["fra1"]
 }

@@ -24,7 +24,11 @@ def main() -> None:
         print("Ошибка: задайте BOT_TOKEN", file=sys.stderr)
         sys.exit(1)
     if not WEBHOOK_URL:
-        print("Ошибка: задайте WEBHOOK_URL (например https://kpbot.vercel.app/api/webhook)", file=sys.stderr)
+        print(
+            "Ошибка: задайте WEBHOOK_URL "
+            "(например https://kpbot.vercel.app/webhook)",
+            file=sys.stderr,
+        )
         sys.exit(1)
 
     params: dict[str, str] = {"url": WEBHOOK_URL}

@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Коммерческое предложение</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #333333;
+            background-color: #ffffff;
+        }
+
+        .slide {
+            width: 297mm;
+            height: 210mm;
+            box-sizing: border-box;
+            page-break-after: always;
+            position: relative;
+            overflow: hidden;
+            background-color: #f3f4f6;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .slide:last-child {
+            page-break-after: avoid;
+        }
+
+        .content-slide {
+            padding: 40mm 20mm 20mm 20mm;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            font-size: 32px;
+            font-weight: bold;
+            color: #1a56db;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #1a56db;
+            padding-bottom: 10px;
+            line-height: 1.2;
+            word-wrap: break-word;
+        }
+
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            table-layout: fixed;
+        }
+
+        .info-table th,
+        .info-table td {
+            border: 1px solid #e5e7eb;
+            padding: 15px;
+            text-align: left;
+            font-size: 18px;
+            vertical-align: top;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .info-table th {
+            background-color: #f3f4f6;
+            font-weight: bold;
+            width: 35%;
+        }
+
+        .info-table td {
+            width: 65%;
+        }
+
+        .price-tag {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a56db;
+        }
+
+        .footer {
+            position: absolute;
+            bottom: 15mm;
+            left: 20mm;
+            right: 20mm;
+            font-size: 14px;
+            color: #9ca3af;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="slide" style="background-image: url('slide1.png');"></div>
+    <div class="slide" style="background-image: url('slide2.png');"></div>
+    <div class="slide" style="background-image: url('slide3.png');"></div>
+    <div class="slide" style="background-image: url('slide4.png');"></div>
+
+    <div class="slide content-slide">
+        <div class="header">Коммерческое предложение для {{ company_name }}</div>
+
+        <table class="info-table">
+            <tr>
+                <th>Параметр</th>
+                <th>Описание</th>
+            </tr>
+            <tr>
+                <td><b>Выбранная услуга</b></td>
+                <td>{{ service_type }}</td>
+            </tr>
+            <tr>
+                <td><b>Дата запуска / Срок действия КП</b></td>
+                <td>{{ target_date }}</td>
+            </tr>
+            <tr>
+                <td><b>Условия оплаты</b></td>
+                <td>{{ payment_terms }}</td>
+            </tr>
+            <tr>
+                <td><b>Особые условия</b></td>
+                <td>{{ extra_conditions }}</td>
+            </tr>
+            <tr>
+                <td><b>Итоговая стоимость</b></td>
+                <td class="price-tag">{{ price }} ₽</td>
+            </tr>
+        </table>
+
+        <div class="footer">
+            Документ сформирован автоматически — {{ current_date }}
+        </div>
+    </div>
+
+</body>
+</html>

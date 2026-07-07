@@ -1,0 +1,12 @@
+.env
+.env.local
+.env*.local
+output/
+__pycache__/
+*.pyc
+*.pyo
+.vercel
+fonts/*.ttf
+.idea/
+.vscode/
+Коммерческое_Предложение.pdf

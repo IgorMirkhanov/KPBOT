@@ -1,0 +1,341 @@
+
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* РЕГИСТРАЦИЯ КИРИЛЛИЧЕСКОГО ШРИФТА ДЛЯ XHTML2PDF */
+        @font-face {
+            font-family: 'CyrillicFont';
+            src: url('Arial.ttf'); /* Файл Arial.ttf должен лежать в корне проекта */
+        }
+        
+        @page {
+            size: a4;
+            margin: 20mm 15mm 20mm 15mm;
+            @bottom-right {
+                content: counter(page);
+                font-family: 'CyrillicFont', sans-serif;
+                font-size: 10pt;
+                color: #86868b;
+            }
+        }
+        body {
+            font-family: 'CyrillicFont', sans-serif;
+            color: #1a1a1a;
+            font-size: 11pt;
+            line-height: 1.5;
+        }
+        .page-break {
+            page-break-after: always;
+        }
+        .main-table {
+            width: 100%;
+        }
+        .main-table td {
+            padding: 0;
+            vertical-align: top;
+        }
+        .title-cover {
+            font-size: 34pt;
+            font-weight: bold;
+            color: #111111;
+            line-height: 1.2;
+        }
+        .subtitle-cover {
+            font-size: 13pt;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .section-hdr {
+            font-size: 20pt;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #111111;
+            border-bottom: 2px solid #111111;
+            padding-bottom: 8px;
+        }
+        .card-stat {
+            background-color: #f5f5f7;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .num-stat {
+            font-size: 22pt;
+            font-weight: bold;
+            color: #111111;
+        }
+        .desc-stat {
+            font-size: 10pt;
+            color: #555555;
+        }
+        .box-cases {
+            background-color: #f5f5f7;
+            padding: 15px;
+            font-size: 9pt;
+            line-height: 1.7;
+            color: #222222;
+        }
+        .list-bullets {
+            margin-top: 10px;
+            padding-left: 15px;
+        }
+        .list-bullets li {
+            margin-bottom: 6px;
+        }
+        /* Устойчивая двухколоночная таблица бюджета */
+        .table-price {
+            width: 100%;
+            margin-top: 15px;
+        }
+        .table-price th {
+            background-color: #111111;
+            color: #ffffff;
+            text-align: left;
+            padding: 10px;
+            font-size: 11pt;
+            font-weight: bold;
+        }
+        .table-price td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e5e7;
+            font-size: 11pt;
+            vertical-align: middle;
+        }
+        .row-total td {
+            background-color: #f5f5f7;
+            font-weight: bold;
+            font-size: 13pt;
+            color: #111111;
+            border-top: 2px solid #111111;
+            border-bottom: 2px solid #111111;
+        }
+    </style>
+</head>
+<body>
+
+    <table class="main-table" style="margin-top: 50mm;">
+        <tr>
+            <td>
+                <div class="subtitle-cover">Коммерческое предложение</div>
+                <div class="title-cover" style="margin-top: 15px; margin-bottom: 45mm;">Интегрированный<br>Маркетинг & ИИ</div>
+            </td>
+        </tr>
+        <tr>
+            <td style="border-top: 1px solid #e5e5e7; padding-top: 20px;">
+                <p style="font-size: 14pt; margin-bottom: 5px;">Для компании: <strong>{{ company_name }}</strong></p>
+                <p style="font-size: 10pt; color: #86868b;">Дата генерации: {{ date }}</p>
+                <p style="font-size: 10pt; color: #86868b;">Media Peace Agency</p>
+            </td>
+        </tr>
+    </table>
+    
+    <div class="page-break"></div>
+
+    <div class="section-hdr">Мы — команда MediaPeace</div>
+    <p style="font-size: 12pt; color: #333333; margin-bottom: 25px;">
+        Креативное рекламное агентство, которое цепляет и вдохновляет. Мы выстраиваем системные коммуникации, превращая сложные задачи в понятные сообщения, бьющие точно в цель.
+    </p>
+    
+    <table class="main-table">
+        <tr>
+            <td width="48%">
+                <div class="card-stat">
+                    <div class="num-stat">8 лет</div>
+                    <div class="desc-stat">успешного опыта в digital-маркетинге</div>
+                </div>
+                <div class="card-stat">
+                    <div class="num-stat">100+</div>
+                    <div class="desc-stat">клиентов за весь период работы</div>
+                </div>
+                <div class="card-stat">
+                    <div class="num-stat">> 10M ₸</div>
+                    <div class="desc-stat">чистая прибыль наших партнеров</div>
+                </div>
+            </td>
+            <td width="4%"></td>
+            <td width="48%">
+                <div class="card-stat">
+                    <div class="num-stat">$5.0M+</div>
+                    <div class="desc-stat">суммарного рекламного бюджета</div>
+                </div>
+                <div class="card-stat">
+                    <div class="num-stat">$1.5</div>
+                    <div class="desc-stat">средняя стоимость целевой заявки (CPA)</div>
+                </div>
+                <div class="card-stat">
+                    <div class="num-stat">100%</div>
+                    <div class="desc-stat">прозрачность аналитики и отчетности</div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="page-break"></div>
+
+    <div class="section-hdr">Философия Результата</div>
+    <table class="main-table" style="margin-top: 10px;">
+        <tr>
+            <td width="48%">
+                <p style="font-size: 13pt; font-weight: bold; margin-bottom: 8px;">Наша Миссия</p>
+                <p style="color: #333333; font-size: 10.5pt;">Давать бизнесу абсолютную ясность в том, как он общается со своим клиентом. Мы берем самые запутанные бизнес-процессы и сложные УТП, упаковывая их в простые, емкие смыслы.</p>
+            </td>
+            <td width="4%"></td>
+            <td width="48%">
+                <p style="font-size: 13pt; font-weight: bold; margin-bottom: 8px;">Наш Подход</p>
+                <p style="color: #333333; font-size: 10.5pt;">Строится на глубокой сквозной аналитике и математической логике. Каждая гипотеза тестируется, а любая креативная идея переводится на язык цифр, окупаемости инвестиций (ROI) и ROMI.</p>
+            </td>
+        </tr>
+    </table>
+    
+    <table class="main-table" style="margin-top: 35mm;">
+        <tr>
+            <td style="background-color: #f5f5f7; padding: 25px; text-align: center; border-left: 4px solid #111111;">
+                <p style="font-size: 15pt; font-style: italic; font-weight: bold; color: #111111; margin-bottom: 0;">
+                    “ С НАМИ БИЗНЕС ЗВУЧИТ ТАК, ЧТО ЕГО СЛЫШАТ И ПОНИМАЮТ. ”
+                </p>
+            </td>
+        </tr>
+    </table>
+
+    <div class="page-break"></div>
+
+    <div class="section-hdr">Наш Опыт (Кейсы)</div>
+    <p style="color: #555555; margin-bottom: 15px;">Бренды и компании, доверившие нам свой маркетинг:</p>
+    <div class="box-cases">
+        <table class="main-table">
+            <tr>
+                <td width="33%">
+                    ADRENALINE<br>ALMATY TOUR<br>ALPHA SKY<br>APRIORI<br>ATLAS DENTAL<br>BAI GROUP<br>BELLISSIMO<br>BRUCKE ENERGY<br>CELINE<br>DRIP CLINIC<br>EXIM<br>FACADE METALS
+                </td>
+                <td width="33%">
+                    FLOWER AVENUE<br>HIGROUP<br>INTROTECH<br>JETBRIDGE<br>KART<br>KAZSMU<br>KAZUSABA<br>KAZZHOL<br>KPFJ<br>LN CLINIC / LAMPA<br>LUXHALL<br>LYNY<br>MAGICCLEAN
+                </td>
+                <td width="33%">
+                    MAMA GIVI<br>MAXIMEDIA<br>MM DENT<br>QAZTECH<br>ROYAL TULIP<br>ROX ALMATY<br>RUBICON<br>TANG MEDICAL<br>THRIVE<br>XFIT<br>YESSET<br>YA.FIT / M-GRANITE
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    {% if 'smm_junior' in selected_services %}
+    <div class="page-break"></div>
+    <div class="section-hdr">Детализация: SMM Junior + Таргет</div>
+    <p style="font-weight: bold; font-size: 12pt; margin-bottom: 10px;">Комплексное ведение Instagram-профиля начального уровня</p>
+    <ul class="list-bullets">
+        <li>Публикации: до 6 постов в основную ленту ежемесячно</li>
+        <li>Генерация Reels и видеоконтента (базовый монтаж) — до 8 роликов</li>
+        <li>Ежедневные уникальные Stories для поддержания охватов (до 40 шт)</li>
+        <li>1 выезд мобилографа/фотографа на съемочную локацию</li>
+        <li>Настройка и оптимизация таргетированной рекламы (до 3 кампаний)</li>
+        <li>Статические рекламные макеты и дизайн баннеров</li>
+        <li>Ежемесячный прозрачный аналитический отчет по ключевым метрикам</li>
+    </ul>
+    {% endif %}
+
+    {% if 'smm_middle' in selected_services %}
+    <div class="page-break"></div>
+    <div class="section-hdr">Детализация: SMM Middle + Таргет</div>
+    <p style="font-weight: bold; font-size: 12pt; margin-bottom: 10px;">Instagram под ключ: Усиленный контент-маркетинг и трафик</p>
+    <ul class="list-bullets">
+        <li>Ведение и оформление профиля в уникальной авторской стилистике</li>
+        <li>Публикации: до 6 трендовых постов в ленту</li>
+        <li>Публикация REELS и динамичных видеокреативов (до 16 роликов)</li>
+        <li>Уникальные интерактивные Stories (до 60 шт/мес) для прогрева аудитории</li>
+        <li>2 продвинутых ИИ-видео / анимационных креатива высокого уровня</li>
+        <li>1 профессиональный выезд фотографа + 2 выезда опытного видеографа</li>
+        <li>Количество рекламных кампаний в таргете: до 5 одновременно</li>
+        <li>Ежедневный мониторинг и оптимизация стоимости клика/лида</li>
+        <li>Еженедельный оперативный отчет + детальный разбор в конце месяца</li>
+    </ul>
+    {% endif %}
+
+    {% if 'ai_assistent' in selected_services %}
+    <div class="page-break"></div>
+    <div class="section-hdr">Детализация: Интеграция ИИ-Ассистента</div>
+    <p style="font-weight: bold; font-size: 12pt; margin-bottom: 10px;">Умная автоматизация коммуникаций на базе LLM-моделей</p>
+    <ul class="list-bullets">
+        <li>Глубокий анализ бизнес-процессов, скриптов продаж и чат-логов компании</li>
+        <li>Разработка кастомных сценариев общения и системных промптов</li>
+        <li>Бесшовная интеграция ИИ-чатбота с мессенджером WhatsApp</li>
+        <li>Полная интеграция с Telegram (боты и клиентские аккаунты)</li>
+        <li>Синхронизация работы ассистента с вашей CRM (amoCRM / Bitrix24)</li>
+        <li>Автономная обработка обращений 24/7: моментальные ответы и квалификация лидов</li>
+        <li>Снижение рутинной нагрузки на менеджеров отдела продаж до 70%</li>
+    </ul>
+    {% endif %}
+
+    <div class="page-break"></div>
+
+    <div class="section-hdr">Параметры и Стоимость Услуг</div>
+    <p style="color: #555555; margin-bottom: 15px;">
+        Состав пакета услуг и параметры бюджета коммерческого предложения:
+    </p>
+    
+    <table class="table-price" cellpadding="0" cellspacing="0">
+        <thead>
+            <tr>
+                <th width="65%">Выбранное направление / Комплекс работ</th>
+                <th width="35%" style="text-align: right; padding-right: 10px;">Статус / Бюджет</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if 'smm_junior' in selected_services %}
+            <tr>
+                <td>SMM Junior + Таргет</td>
+                <td style="text-align: right; padding-right: 10px;">Включено в пакет</td>
+            </tr>
+            {% endif %}
+            
+            {% if 'smm_middle' in selected_services %}
+            <tr>
+                <td>SMM Middle + Таргет</td>
+                <td style="text-align: right; padding-right: 10px;">Включено в пакет</td>
+            </tr>
+            {% endif %}
+            
+            {% if 'target_insta' in selected_services %}
+            <tr>
+                <td>Таргет Insta</td>
+                <td style="text-align: right; padding-right: 10px;">Включено в пакет</td>
+            </tr>
+            {% endif %}
+            
+            {% if 'context' in selected_services %}
+            <tr>
+                <td>Контекстная реклама</td>
+                <td style="text-align: right; padding-right: 10px;">Включено в пакет</td>
+            </tr>
+            {% endif %}
+            
+            {% if 'ai_assistent' in selected_services %}
+            <tr>
+                <td>ИИ-ассистент</td>
+                <td style="text-align: right; padding-right: 10px;">Включено в пакет</td>
+            </tr>
+            {% endif %}
+            
+            <tr>
+                <td>Срок запуска проекта / Действие цен:</td>
+                <td style="text-align: right; padding-right: 10px;"><strong>{{ project_deadline }}</strong></td>
+            </tr>
+            
+            <tr class="row-total">
+                <td>ИТОГО СТОИМОСТЬ:</td>
+                <td style="text-align: right; padding-right: 10px;">{{ total_monthly_price }} ₸</td>
+            </tr>
+        </tbody>
+    </table>
+    
+    <table class="main-table" style="margin-top: 30mm;">
+        <tr>
+            <td style="font-size: 10pt; color: #555555; line-height: 1.4;">
+                <p><strong>Условия оплаты:</strong> Предоплата 50% перед стартом аналитических работ. Остаток выплачивается по факту сдачи этапов.</p>
+                <p style="margin-top: 5px;"><strong>Особые условия:</strong> Точные регламенты фиксации стоимости фиксируются в основном договоре (VHM).</p>
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

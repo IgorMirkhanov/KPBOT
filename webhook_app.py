@@ -34,7 +34,10 @@ async def process_update(update_data: dict) -> None:
 def verify_secret(headers: dict[str, str]) -> bool:
     if not WEBHOOK_SECRET:
         return True
-    return headers.get("X-Telegram-Bot-Api-Secret-Token", "") == WEBHOOK_SECRET
+    for key, value in headers.items():
+        if key.lower() == "x-telegram-bot-api-secret-token":
+            return value.strip() == WEBHOOK_SECRET
+    return False
 
 
 async def handle_webhook_post(body: bytes, headers: dict[str, str]) -> tuple[int, bytes]:

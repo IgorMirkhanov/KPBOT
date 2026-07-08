@@ -18,6 +18,11 @@ _PDF_LEGACY: Path = BASE_DIR / "Коммерческое_Предложение.
 PDF_OUTPUT: Path = OUTPUT_DIR / "kp_output.pdf"
 ARIAL_FONT_PATH: Path = FONTS_DIR / "Arial.ttf"
 
+BUNDLED_FONT_CANDIDATES: tuple[Path, ...] = (
+    BASE_DIR / "assets" / "fonts" / "Arial.ttf",
+    BASE_DIR / "assets" / "fonts" / "DejaVuSans.ttf",
+)
+
 _WIN_ARIAL: Path = Path(os.environ.get("WINDIR", r"C:\Windows")) / "Fonts" / "arial.ttf"
 
 WEBHOOK_SECRET: str = os.getenv("WEBHOOK_SECRET", "").strip()

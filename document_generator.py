@@ -10,6 +10,7 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 from config import (
     ARIAL_FONT_PATH,
+    BUNDLED_FONT_CANDIDATES,
     FONTS_DIR,
     OUTPUT_DIR,
     PDF_OUTPUT,
@@ -179,7 +180,7 @@ LAYOUT_LEGACY_V1 = {
 
 
 def _arial_source_candidates() -> list[Path]:
-    candidates = [
+    candidates = list(BUNDLED_FONT_CANDIDATES) + [
         _WIN_ARIAL,
         Path("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf"),
         Path("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"),
@@ -189,24 +190,24 @@ def _arial_source_candidates() -> list[Path]:
 
 
 def _download_fallback_font() -> None:
-    """Скачивает DejaVu Sans как запасной кириллический шрифт."""
+    """Download DejaVu Sans as fallback Cyrillic font."""
     url = (
         "https://github.com/dejavu-fonts/dejavu-fonts/raw/"
         "version_2_37/ttf/DejaVuSans.ttf"
     )
-    logger.info("Скачивание запасного шрифта DejaVu Sans → %s", ARIAL_FONT_PATH)
+    logger.info("Downloading fallback font DejaVu Sans -> %s", ARIAL_FONT_PATH)
     urllib.request.urlretrieve(url, ARIAL_FONT_PATH)
 
 
 def ensure_arial_font() -> Path:
-    """Копирует Arial.ttf в fonts/ при первом запуске."""
+    """Copy bundled font into writable FONTS_DIR (required on Vercel /tmp)."""
     FONTS_DIR.mkdir(parents=True, exist_ok=True)
     if ARIAL_FONT_PATH.exists() and ARIAL_FONT_PATH.stat().st_size > 0:
         return ARIAL_FONT_PATH
 
     for source in _arial_source_candidates():
         shutil.copy2(source, ARIAL_FONT_PATH)
-        logger.info("Шрифт Arial скопирован из %s", source)
+        logger.info("Font copied to %s from %s", ARIAL_FONT_PATH, source)
         return ARIAL_FONT_PATH
 
     try:
@@ -214,8 +215,7 @@ def ensure_arial_font() -> Path:
         return ARIAL_FONT_PATH
     except OSError as exc:
         raise FileNotFoundError(
-            "Не найден Arial.ttf и не удалось скачать запасной шрифт. "
-            f"Положите файл в {ARIAL_FONT_PATH}"
+            "Cyrillic font not found. Bundle assets/fonts/Arial.ttf in the project."
         ) from exc
 
 

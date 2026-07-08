@@ -10,6 +10,8 @@ from handlers import router
 
 logger = logging.getLogger(__name__)
 
+_dispatcher: Dispatcher | None = None
+
 
 def _create_storage() -> BaseStorage:
     redis_url = get_redis_url()
@@ -36,11 +38,22 @@ def _create_storage() -> BaseStorage:
     return MemoryStorage()
 
 
-def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
+def get_dispatcher() -> Dispatcher:
+    """Singleton Dispatcher — router attaches once per warm serverless instance."""
+    global _dispatcher
+    if _dispatcher is None:
+        _dispatcher = Dispatcher(storage=_create_storage())
+        _dispatcher.include_router(router)
+        logger.info("Dispatcher initialized")
+    return _dispatcher
+
+
+def create_bot() -> Bot:
     if not BOT_TOKEN:
         raise RuntimeError("BOT_TOKEN not set. Set BOT_TOKEN environment variable.")
+    return Bot(token=BOT_TOKEN)
 
-    bot = Bot(token=BOT_TOKEN)
-    dp = Dispatcher(storage=_create_storage())
-    dp.include_router(router)
-    return bot, dp
+
+def create_bot_and_dispatcher() -> tuple[Bot, Dispatcher]:
+    """For local polling in main.py."""
+    return create_bot(), get_dispatcher()

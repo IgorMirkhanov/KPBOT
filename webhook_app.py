@@ -5,15 +5,13 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import os
 
 from aiogram.types import Update
 
-from bot_setup import create_bot_and_dispatcher
+from bot_setup import create_bot, get_dispatcher
 from config import WEBHOOK_SECRET
 
 logger = logging.getLogger(__name__)
-IS_SERVERLESS = bool(os.getenv("VERCEL"))
 
 
 def verify_secret(headers: dict[str, str]) -> bool:
@@ -26,8 +24,9 @@ def verify_secret(headers: dict[str, str]) -> bool:
 
 
 async def process_update(update_data: dict) -> None:
-    """Fresh Bot session per request — required for Vercel serverless."""
-    bot, dp = create_bot_and_dispatcher()
+    """Fresh Bot per request, singleton Dispatcher — Vercel serverless pattern."""
+    bot = create_bot()
+    dp = get_dispatcher()
     try:
         update = Update.model_validate(update_data, context={"bot": bot})
         await dp.feed_update(bot, update)
@@ -42,8 +41,7 @@ async def handle_webhook_post(body: bytes, headers: dict[str, str]) -> tuple[int
 
     try:
         update_data = json.loads(body.decode("utf-8") or "{}")
-        update_id = update_data.get("update_id", "?")
-        logger.info("Processing update_id=%s", update_id)
+        logger.info("Processing update_id=%s", update_data.get("update_id", "?"))
         await process_update(update_data)
         return 200, b"OK"
     except Exception:
@@ -52,7 +50,6 @@ async def handle_webhook_post(body: bytes, headers: dict[str, str]) -> tuple[int
 
 
 def _run_async(coro) -> tuple[int, bytes]:
-    """New event loop per invocation — avoids 'loop is closed' on warm instances."""
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     try:

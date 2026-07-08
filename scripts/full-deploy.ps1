@@ -19,6 +19,8 @@ Get-Content $EnvFile | ForEach-Object {
 
 vercel link --yes --project kpbot | Out-Null
 
+vercel env rm WEBHOOK_SECRET production --yes 2>$null
+
 function Set-VercelEnv($Name, $Value) {
     if ($Value) {
         Write-Host "  env: $Name"
@@ -28,11 +30,9 @@ function Set-VercelEnv($Name, $Value) {
 
 Write-Host "--- Upload env ---"
 Set-VercelEnv "BOT_TOKEN" $env:BOT_TOKEN
-Set-VercelEnv "WEBHOOK_SECRET" $env:WEBHOOK_SECRET
 Set-VercelEnv "WEBHOOK_URL" $WebhookUrl
 Set-VercelEnv "UPSTASH_REDIS_REST_URL" $env:UPSTASH_REDIS_REST_URL
 Set-VercelEnv "UPSTASH_REDIS_REST_TOKEN" $env:UPSTASH_REDIS_REST_TOKEN
-Set-VercelEnv "REDIS_URL" $env:REDIS_URL
 
 Write-Host "--- Deploy production ---"
 vercel deploy --prod --yes

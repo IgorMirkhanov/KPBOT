@@ -17,7 +17,6 @@ except ImportError:
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "")
 WEBHOOK_URL = os.getenv("WEBHOOK_URL", "")
-WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "").strip()
 
 
 def main() -> None:
@@ -28,13 +27,12 @@ def main() -> None:
         print("Error: set WEBHOOK_URL", file=sys.stderr)
         sys.exit(1)
 
-    with urlopen(f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook?drop_pending_updates=true") as r:
+    with urlopen(
+        f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook?drop_pending_updates=true"
+    ) as r:
         print("deleteWebhook:", r.read().decode("utf-8"))
 
-    params: dict[str, str] = {"url": WEBHOOK_URL}
-    if WEBHOOK_SECRET:
-        params["secret_token"] = WEBHOOK_SECRET
-
+    params = {"url": WEBHOOK_URL, "allowed_updates": '["message","callback_query"]'}
     api_url = f"https://api.telegram.org/bot{BOT_TOKEN}/setWebhook?{urlencode(params)}"
     with urlopen(api_url) as response:
         print("setWebhook:", response.read().decode("utf-8"))

@@ -32,7 +32,7 @@ class UpstashRestStorage(BaseStorage):
         if state is None:
             await self._run(self._redis.delete, redis_key)
         else:
-            await self._run(self._redis.set, redis_key, str(state))
+            await self._run(self._redis.set, redis_key, str(state), ex=86400)
 
     async def get_state(self, key: StorageKey) -> str | None:
         redis_key = _storage_key("fsm", key, "state")
@@ -42,7 +42,12 @@ class UpstashRestStorage(BaseStorage):
     async def set_data(self, key: StorageKey, data: dict[str, Any]) -> None:
         redis_key = _storage_key("fsm", key, "data")
         if data:
-            await self._run(self._redis.set, redis_key, json.dumps(data, ensure_ascii=False))
+            await self._run(
+                self._redis.set,
+                redis_key,
+                json.dumps(data, ensure_ascii=False),
+                ex=86400,
+            )
         else:
             await self._run(self._redis.delete, redis_key)
 

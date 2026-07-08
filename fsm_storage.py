@@ -7,13 +7,22 @@ import json
 import logging
 from typing import Any
 
+from aiogram.fsm.state import State
 from aiogram.fsm.storage.base import BaseStorage, StorageKey, StateType
 
 logger = logging.getLogger(__name__)
 
+_STATE_TTL = 86400
+
 
 def _storage_key(prefix: str, key: StorageKey, suffix: str) -> str:
     return f"{prefix}:{key.bot_id}:{key.chat_id}:{key.user_id}:{suffix}"
+
+
+def _state_value(state: StateType) -> str:
+    if isinstance(state, State):
+        return state.state
+    return str(state)
 
 
 class UpstashRestStorage(BaseStorage):
@@ -32,7 +41,7 @@ class UpstashRestStorage(BaseStorage):
         if state is None:
             await self._run(self._redis.delete, redis_key)
         else:
-            await self._run(self._redis.set, redis_key, str(state), ex=86400)
+            await self._run(self._redis.set, redis_key, _state_value(state), ex=_STATE_TTL)
 
     async def get_state(self, key: StorageKey) -> str | None:
         redis_key = _storage_key("fsm", key, "state")
@@ -46,7 +55,7 @@ class UpstashRestStorage(BaseStorage):
                 self._redis.set,
                 redis_key,
                 json.dumps(data, ensure_ascii=False),
-                ex=86400,
+                ex=_STATE_TTL,
             )
         else:
             await self._run(self._redis.delete, redis_key)
@@ -59,6 +68,12 @@ class UpstashRestStorage(BaseStorage):
         if isinstance(raw, dict):
             return raw
         return json.loads(raw)
+
+    async def update_data(self, key: StorageKey, data: dict[str, Any]) -> dict[str, Any]:
+        current = await self.get_data(key)
+        current.update(data)
+        await self.set_data(key, current)
+        return current
 
     async def close(self) -> None:
         return None

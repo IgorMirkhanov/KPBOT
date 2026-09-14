@@ -9,6 +9,7 @@ from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from document_generator import SERVICE_CATALOG, generate_pdf, sanitize_price_digits
+from rate_limiter import rate_limited
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -212,6 +213,7 @@ async def process_custom_price_invalid(message: types.Message) -> None:
     F.text,
     ~F.text.startswith("/"),
 )
+@rate_limited()
 async def process_project_deadline(message: types.Message, state: FSMContext) -> None:
     project_deadline = message.text.strip()
     if len(project_deadline) < 2:

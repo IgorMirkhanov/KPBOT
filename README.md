@@ -19,8 +19,10 @@ Telegram-бот для автоматической генерации PDF ко�
 │   └── webhook.py        # Legacy alias
 ├── webhook_app.py        # Async aiogram 3 webhook logic
 ├── bot_setup.py          # Bot + Dispatcher + Redis FSM
+├── rate_limiter.py       # Per-user rate limiting (reuses FSM's Redis)
 ├── main.py               # Local polling only
 ├── vercel.json           # Routes, timeouts, region
+├── tests/                # pytest test suite (see §9)
 ├── scripts/
 │   ├── vercel-setup.ps1  # vercel link + env pull
 │   ├── vercel-deploy.ps1 # vercel deploy --prod
@@ -183,6 +185,30 @@ python main.py
 3. Redeploy
 
 Без Redis FSM-состояние (выбор услуг → компания → цена → срок) теряется между serverless-вызовами.
+
+---
+
+## 9. Тесты
+
+Юнит-тесты (pytest) покрывают генерацию PDF, валидацию ввода, rate limiting
+и fail-closed поведение вебхука.
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
+Что покрыто (`tests/`):
+
+| Файл | Что проверяет |
+|------|----------------|
+| `test_document_generator.py` | `sanitize_price_digits`, расчёт итогов, `validate_pdf_data`, простановка текста/сумм в PDF (запись PDF замокана — реальный `templates/commercial_proposal.pdf` не требуется) |
+| `test_handlers.py` | Валидация названия компании и кастомной цены, срабатывание rate limiter на шаге генерации КП |
+| `test_rate_limiter.py` | In-memory и Redis-based (`redis.asyncio` / Upstash) реализации лимитера, выбор реализации по типу FSM-хранилища, декоратор `@rate_limited()` |
+| `test_webhook_app.py` | Отказ в запуске без `WEBHOOK_SECRET` (fail closed), проверка `verify_secret` |
+
+`tests/conftest.py` выставляет тестовые `BOT_TOKEN`/`WEBHOOK_SECRET` перед
+импортом модулей проекта — реальные секреты не нужны для запуска тестов.
 
 ---
 

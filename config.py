@@ -12,6 +12,9 @@ else:
     OUTPUT_DIR = BASE_DIR / "output"
     FONTS_DIR = BASE_DIR / "fonts"
 
+# templates/commercial_proposal.pdf is the single canonical PDF template.
+# (Previously duplicated as template.pdf / template.pdf.pdf; those copies were
+# removed from git — keep only this file, do not reintroduce renamed copies.)
 PDF_TEMPLATE: Path = BASE_DIR / "templates" / "commercial_proposal.pdf"
 _PDF_LEGACY: Path = BASE_DIR / "Коммерческое_Предложение.pdf"
 

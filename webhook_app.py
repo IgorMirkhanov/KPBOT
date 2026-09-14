@@ -14,9 +14,25 @@ from config import WEBHOOK_SECRET
 logger = logging.getLogger(__name__)
 
 
-def verify_secret(headers: dict[str, str]) -> bool:
+def require_webhook_secret_configured() -> None:
+    """Fail loudly at startup rather than fail open on every webhook request.
+
+    Without WEBHOOK_SECRET set, verify_secret() has no way to authenticate
+    Telegram's requests. Refuse to serve traffic instead of silently
+    accepting unauthenticated webhook calls.
+    """
     if not WEBHOOK_SECRET:
-        return True
+        raise RuntimeError(
+            "WEBHOOK_SECRET is not set. Refusing to start: without it the "
+            "webhook cannot verify requests actually come from Telegram. "
+            "Set the WEBHOOK_SECRET environment variable."
+        )
+
+
+require_webhook_secret_configured()
+
+
+def verify_secret(headers: dict[str, str]) -> bool:
     for key, value in headers.items():
         if key.lower() == "x-telegram-bot-api-secret-token":
             return value.strip() == WEBHOOK_SECRET
